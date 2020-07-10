@@ -1,3 +1,10 @@
+const events = {
+  ADD: 0,
+  SUBTRACT: 1,
+  MULTIPLY: 2,
+  DIVIDE: 3,
+};
+
 class EventSourcer {
   constructor() {
     this.value = 0;
@@ -7,13 +14,25 @@ class EventSourcer {
 
   add(num) {
     this.value += num;
-    this.historyStack.push(num);
+    this.historyStack.push({ event: events.ADD, value: num });
     return this.value;
   }
 
   subtract(num) {
     this.value -= num;
-    this.historyStack.push(num * -1);
+    this.historyStack.push({ event: events.SUBTRACT, value: num });
+    return this.value;
+  }
+
+  multiply(num) {
+    this.value *= num;
+    this.historyStack.push({ event: events.MULTIPLY, value: num });
+    return this.value;
+  }
+
+  divide(num) {
+    this.value /= num;
+    this.historyStack.push({ event: events.DIVIDE, value: num });
     return this.value;
   }
 
@@ -24,7 +43,21 @@ class EventSourcer {
 
     const operation = this.historyStack.pop();
     this.futureStack.push(operation);
-    this.value -= operation;
+
+    switch (operation.event) {
+      case events.ADD:
+        this.value -= operation.value;
+        break;
+      case events.SUBTRACT:
+        this.value += operation.value;
+        break;
+      case events.MULTIPLY:
+        this.value /= operation.value;
+        break;
+      case events.DIVIDE:
+        this.value *= operation.value;
+        break;
+    }
 
     return this.value;
   }
@@ -36,7 +69,21 @@ class EventSourcer {
 
     const operation = this.futureStack.pop();
     this.historyStack.push(operation);
-    this.value += operation;
+
+    switch (operation.event) {
+      case events.ADD:
+        this.value += operation.value;
+        break;
+      case events.SUBTRACT:
+        this.value -= operation.value;
+        break;
+      case events.MULTIPLY:
+        this.value *= operation.value;
+        break;
+      case events.DIVIDE:
+        this.value /= operation.value;
+        break;
+    }
 
     return this.value;
   }
